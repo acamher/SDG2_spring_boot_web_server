@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style media="screen">
+  h1{
+    font-family:courier,arial,helvética;
+  }
+
+  .boton{
+    width: 100px;
+    border-style: dotted;
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+    margin: 8px 8px;
+  }
+
+  .contenedor{
+    height: 100px;
+    width: 400px;
+    background-color:#CCC;
+    display: flex;
+    justify-content: space-around;
+  }
+
+  input{
+    height: 100%;
+    align-content: center;
+    width: 100%;
+    padding: 12px 20px;
+    margin: auto;
+    display: inline-block;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  </style>
+
+</head>
+<body>
+  <script>
+  function rellamar(){
+    setInterval(function(){
+      loadDocA();
+      loadDocB();
+      loadDocC();
+      console.log("Llega aqui");
+    }, 2000);
+  }
+
+  function loadDocA() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("sensorA").value = this.responseText;
+    }};
+    xhttp.open("GET", "mqtt?dato=prueba_red.txt", true);
+    xhttp.send();
+  }
+
+  function loadDocB() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("sensorB").value = this.responseText;
+      }};
+    xhttp.open("GET", "mqtt?dato=prueba_red.txt", true);
+    xhttp.send();
+  }
+
+  function loadDocC() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("sensorC").value = this.responseText;
+      }};
+    xhttp.open("GET", "mqtt?dato=prueba_red.txt", true);
+    xhttp.send();
+  }
+
+  </script>
+    <button type="button" onclick="rellamar()" >Change Content</button>
+    <h1>Servidor Arduino-Raspberry</h1>
+
+    <div class="contenedor">
+      <div class="boton">
+        <input type="text" id="sensorA" disabled="true">
+      </div>
+      <div class="boton">
+        <input type="text" id="sensorB" disabled="true">
+      </div>
+      <div class="boton">
+        <input type="text" id="sensorC" disabled="true">
+      </div>
+    </div>
+
+  </body>
+  </html>

@@ -1,0 +1,19 @@
+.boton{
+  width: 20%;
+  border-style: dotted;
+  text-align: center;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.contenedor{
+  height: 100px;
+  background-color:#CCC;
+  display: flex;
+  justify-content: space-around;
+}
+
+input{
+  height: 100%;
+  align-content: center;
+}
