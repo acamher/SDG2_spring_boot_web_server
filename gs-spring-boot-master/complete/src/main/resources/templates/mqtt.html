@@ -42,8 +42,6 @@
   function rellamar(){
     setInterval(function(){
       loadDocA();
-      loadDocB();
-      loadDocC();
       console.log("Llega aqui");
     }, 2000);
   }
@@ -52,29 +50,12 @@
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-      document.getElementById("sensorA").value = this.responseText;
+      var arrrayDeNumeros = this.responseText.split(";");
+      document.getElementById("sensorA").value = arrrayDeNumeros[0];
+      document.getElementById("sensorB").value = arrrayDeNumeros[1];
+      document.getElementById("sensorC").value = arrrayDeNumeros[2];
     }};
     xhttp.open("GET", "mqtt?dato=A", true);
-    xhttp.send();
-  }
-
-  function loadDocB() {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        document.getElementById("sensorB").value = this.responseText;
-      }};
-    xhttp.open("GET", "mqtt?dato=B", true);
-    xhttp.send();
-  }
-
-  function loadDocC() {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        document.getElementById("sensorC").value = this.responseText;
-      }};
-    xhttp.open("GET", "mqtt?dato=C", true);
     xhttp.send();
   }
 

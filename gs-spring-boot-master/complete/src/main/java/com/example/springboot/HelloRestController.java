@@ -15,11 +15,11 @@ import java.io.FileNotFoundException;  // Import this class to handle errors
 public class HelloRestController{
 
 	@RequestMapping("/mqtt")
-	public String sensor(@RequestParam(name="dato", required=false, defaultValue="prueba.txt") String dato) {
-		return leer(dato);	//El directorio en el que se ejecuta es /gs-spring-boot-master/complete por tanto para sacarlo de la app sería "../../dirx".
+	public String sensor(@RequestParam(name="dato", required=false, defaultValue="A") String dato) {
+		return leer();	//El directorio en el que se ejecuta es /gs-spring-boot-master/complete por tanto para sacarlo de la app sería "../../dirx".
 	}
 
-	private String leer(String path) {
+	private String leer() {
 
 	    try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -27,8 +27,20 @@ public class HelloRestController{
             Statement stmt = con.createStatement();
 
             ResultSet rs = null;
+            String resultado = null;
+            rs = stmt.executeQuery("SELECT distancia FROM data WHERE id=1");
+            if(rs.next())
+                resultado = "" + rs.getInt(1);
+            rs = null;
+            rs = stmt.executeQuery("SELECT distancia FROM data WHERE id=2");
+            if(rs.next())
+                resultado = resultado + ";" + rs.getInt(1);
+            rs = null;
+            rs = stmt.executeQuery("SELECT distancia FROM data WHERE id=3");
+            if(rs.next())
+                resultado = resultado + ";" + rs.getInt(1);
 
-            switch (path){
+            /*switch (path){
                 case "A":
                     rs = stmt.executeQuery("SELECT distancia FROM data WHERE id=1");
                 case "B":
@@ -41,13 +53,13 @@ public class HelloRestController{
                 return "" + rs.getInt(1);
             }else{
                 return "";
-            }
+            }*/
+
+            return resultado;
 
         } catch (Exception e) {
 		    System.out.println(e);
             return "" ;
         }
-
 	}
-
 }
