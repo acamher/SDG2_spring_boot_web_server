@@ -7,10 +7,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.sql.*;
 
-
-import java.io.File;  // Import the File class
-import java.util.Scanner; // Import the Scanner class to read text files
 import java.io.FileNotFoundException;  // Import this class to handle errors
 
 @RestController
@@ -22,23 +20,34 @@ public class HelloRestController{
 	}
 
 	private String leer(String path) {
-		String data ="";
 
-		//System.out.println("Directorio actual: " + System.getProperty("user.dir"));
+	    try {
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/sensor","spring","web_ddbb");
+            Statement stmt = con.createStatement();
 
-		try {
-          File myObj = new File(path);
-          Scanner myReader = new Scanner(myObj);
-          while (myReader.hasNextLine()) {
-            data = myReader.nextLine();
-          }
-          myReader.close();
-                return data;
-        } catch (FileNotFoundException e) {
-          System.out.println("An error occurred.");
-          e.printStackTrace();
-                return "Error";
+            ResultSet rs = null;
+
+            switch (path){
+                case "A":
+                    rs = stmt.executeQuery("SELECT distancia FROM data WHERE id=1");
+                case "B":
+                    rs = stmt.executeQuery("SELECT distancia FROM data WHERE id=2");
+                case "C":
+                    rs = stmt.executeQuery("SELECT distancia FROM data WHERE id=3");
+            }
+
+            if(rs.next()){
+                return "" + rs.getInt(1);
+            }else{
+                return "";
+            }
+
+        } catch (Exception e) {
+		    System.out.println(e);
+            return "" ;
         }
+
 	}
 
 }
