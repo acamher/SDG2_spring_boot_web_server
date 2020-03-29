@@ -27,18 +27,18 @@ public class HelloRestController{
 		//System.out.println("Directorio actual: " + System.getProperty("user.dir"));
 
 		try {
-      File myObj = new File(path);
-      Scanner myReader = new Scanner(myObj);
-      while (myReader.hasNextLine()) {
-        data = myReader.nextLine();
-      }
-      myReader.close();
-			return data;
-    } catch (FileNotFoundException e) {
-      System.out.println("An error occurred.");
-      e.printStackTrace();
-			return "Error";
-    }
+          File myObj = new File(path);
+          Scanner myReader = new Scanner(myObj);
+          while (myReader.hasNextLine()) {
+            data = myReader.nextLine();
+          }
+          myReader.close();
+                return data;
+        } catch (FileNotFoundException e) {
+          System.out.println("An error occurred.");
+          e.printStackTrace();
+                return "Error";
+        }
 	}
 
 }
