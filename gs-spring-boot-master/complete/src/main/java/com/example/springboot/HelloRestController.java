@@ -23,7 +23,7 @@ public class HelloRestController{
 
 	    try {
             Class.forName("com.mysql.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/sensor","spring","web_ddbb");
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/sensor?serverTimezone=Europe/Berlin" ,"spring","web_ddbb");
             Statement stmt = con.createStatement();
 
             ResultSet rs = null;
