@@ -2,78 +2,147 @@
 <html>
 <head>
   <style media="screen">
-  h1{
-    font-family:courier,arial,helvética;
-  }
+    h1{
+      font-family:courier,arial,helvética;
+    }
 
-  .boton{
-    width: 100px;
-    border-style: dotted;
-    text-align: center;
-    display: table-cell;
-    vertical-align: middle;
-    margin: 8px 8px;
-  }
+    .boton{
+      width: 100px;
+      border-style: dotted;
+      text-align: center;
+      display: table-cell;
+      vertical-align: middle;
+      margin: 8px 8px;
+    }
 
-  .contenedor{
-    height: 100px;
-    width: 400px;
-    background-color:#CCC;
-    display: flex;
-    justify-content: space-around;
-  }
+    .contenedor{
+      height: 100px;
+      width: 400px;
+      background-color:#CCC;
+      display: flex;
+      justify-content: space-around;
+    }
 
-  input{
-    height: 100%;
-    align-content: center;
-    width: 100%;
-    padding: 12px 20px;
-    margin: auto;
-    display: inline-block;
-    border: 1px solid #ffffff;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
+    input{
+      height: 100%;
+      align-content: center;
+      width: 100%;
+      padding: 12px 20px;
+      margin: auto;
+      display: inline-block;
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
   </style>
 
 </head>
 <body>
-  <script>
+<script>
   function rellamar(){
     setInterval(function(){
       loadDocA();
-      console.log("Llega aqui");
+      updateImage();
     }, 2000);
   }
+
+  function updateImage(){
+    var xhr = new XMLHttpRequest();
+
+    xhr.open('GET',"/img/getImage", true);
+
+    xhr.onload = function(){
+      var img = new Image();
+      var response = xhr.responseText;
+      var binary = "";
+
+      for(i=0;i<response.length;i++){
+        binary += String.fromCharCode(response.charCodeAt(i) & 0xff);
+      }
+
+      img.src = 'data:image/jpeg;base64,' + btoa(binary);
+      var canvas = document.getElementById('showImage');
+      var context = canvas.getContext('2d');
+
+      context.drawImage(img,0,0);
+      var snapshot = canvas.toDataURL("image/png");
+      var twinImage = document.getElementById('twinImg');
+      twinImage.src = snapshot;
+
+    };
+
+    xhr.overrideMimeType('text/plain; charset=x-user-defined');
+    xhr.send();
+  }
+
+  /*function updateImage() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState === 4 && this.status === 200) {
+        estado = this.responseText;
+        document.getElementById("estado").innerHTML = estado;
+        if (estado === "alr" || estado === "on"){
+          send(1);
+          document.getElementById('img').style.display = 'block';
+          var node = document.getElementById('img');
+          refresh(node);
+        }else{
+          send(2);
+          document.getElementById('img').style.display = 'none';
+        }
+      }};
+    xhttp.open("GET", "estado", true);
+    xhttp.send();
+  }*/
 
   function loadDocA() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      var arrrayDeNumeros = this.responseText.split(";");
-      document.getElementById("sensorA").value = arrrayDeNumeros[0];
-      document.getElementById("sensorB").value = arrrayDeNumeros[1];
-      document.getElementById("sensorC").value = arrrayDeNumeros[2];
-    }};
+      if (this.readyState === 4 && this.status === 200) {
+        var arrrayDeNumeros = this.responseText.split(";");
+        document.getElementById("sensorA").value = arrrayDeNumeros[0];
+        document.getElementById("sensorB").value = arrrayDeNumeros[1];
+        document.getElementById("sensorC").value = arrrayDeNumeros[2];
+      }};
     xhttp.open("GET", "mqtt?dato=A", true);
     xhttp.send();
   }
 
-  </script>
-    <button type="button" onclick="rellamar()" >Change Content</button>
-    <h1>Servidor Arduino-Raspberry</h1>
+  // Si el parámetro estado vale 1 (ascii = 49), se activa el arduino. Si se envía 2 (ascii = 50), se desactivan los sensores.
+  function send(estado) {
+    if (estado === 1) {
+      document.getElementById('img').style.display = 'block';
+    } else {
+      document.getElementById('img').style.display = 'none';
+    }
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET","send?estado=" + estado ,true);
+    xhttp.send();
+  }
 
-    <div class="contenedor">
-      <div class="boton">
-        <input type="text" id="sensorA" disabled="true">
-      </div>
-      <div class="boton">
-        <input type="text" id="sensorB" disabled="true">
-      </div>
-      <div class="boton">
-        <input type="text" id="sensorC" disabled="true">
-      </div>
-    </div>
+</script>
+<button type="button" onclick="rellamar()" >Change Content</button>
+<h1>Servidor Arduino-Raspberry</h1>
 
-  </body>
-  </html>
+<div class="contenedor">
+  <div class="boton">
+    <input type="text" id="sensorA" disabled="true">
+  </div>
+  <div class="boton">
+    <input type="text" id="sensorB" disabled="true">
+  </div>
+  <div class="boton">
+    <input type="text" id="sensorC" disabled="true">
+  </div>
+</div>
+<h1>Servicio:</h1>
+<h1 id="estado"></h1>
+<div>
+  <button onclick='send("1")'>Encendido</button>
+  <button onclick='send("2")'>Apagado</button>
+</div>
+
+<canvas id="showImage" width="200" height="200"></canvas>
+<img src="#" id="twinImg" />
+</body>
+</html>
