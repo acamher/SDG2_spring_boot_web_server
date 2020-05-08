@@ -1,9 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <style media="screen">
+    body{
+      font-family: 'Roboto', sans-serif;
+    }
+
     h1{
-      font-family:courier,arial,helvética;
+      margin: 15px;
+    }
+
+    button{
+      height: 40px;
+    }
+
+    .enlinea{
+      display: inline;
+      width: auto;
     }
 
     .boton{
@@ -15,12 +30,25 @@
       margin: 8px 8px;
     }
 
+    .botonera{
+      margin: 15px;
+    }
+
     .contenedor{
+      margin: 15px;
       height: 100px;
       width: 400px;
       background-color:#CCC;
       display: flex;
       justify-content: space-around;
+    }
+
+    .alerta{
+      display: none;
+      background-color: indianred;
+      border: solid darkred 2px;
+      color: darkred;
+      text-align: center;
     }
 
     input{
@@ -34,11 +62,23 @@
       border-radius: 4px;
       box-sizing: border-box;
     }
+
+    #showImage{
+      margin: 15px;
+      margin-top: 0px;
+    }
+
+    #twinImg{
+      display: none;
+    }
+
   </style>
 
 </head>
 <body>
 <script>
+  $(document).ready(rellamar());
+
   function rellamar(){
     setInterval(function(){
       getSensoresYEstado();
@@ -84,6 +124,12 @@
         document.getElementById("sensorB").value = arrrayDeNumeros[1];
         document.getElementById("sensorC").value = arrrayDeNumeros[2];
         document.getElementById("estado").innerHTML = arrrayDeNumeros[3];
+
+        if (arrrayDeNumeros[3] === "alr"){
+          document.getElementById("alert").style.display = "block";
+        }else{
+          document.getElementById("alert").style.display = "none";
+        }
       }};
     xhttp.open("GET", "mqtt?dato=A", true);
     xhttp.send();
@@ -97,28 +143,43 @@
   }
 
 </script>
-<button type="button" onclick="rellamar()" >Change Content</button>
-<h1>Servidor Arduino-Raspberry</h1>
+  <h1>Servidor Arduino-Raspberry</h1>
+  <div style="display: flex">
+    <div>
+      <h1>Cámara:</h1>
+      <canvas id="showImage" width="640" height="480"></canvas>
+      <img src="#" id="twinImg"/>
+    </div>
+    <div>
+      <div>
+        <h1>Distancia sensores:</h1>
+        <div class="contenedor">
+          <div class="boton">
+            <input type="text" id="sensorA" disabled="true">
+          </div>
+          <div class="boton">
+            <input type="text" id="sensorB" disabled="true">
+          </div>
+          <div class="boton">
+            <input type="text" id="sensorC" disabled="true">
+          </div>
+        </div>
+      </div>
+      <div>
+        <h1 class="enlinea" >Servicio:</h1>
+        <h1 id="estado" class="enlinea"></h1>
+        <div class="botonera">
+          <button onclick='send("1")' style="background-color: green">Encendido</button>
+          <button onclick='send("2")' style="background-color: darkred">Apagado</button>
+          <button onclick='send("3")' style="background-color: darkgoldenrod">Manual</button>
+        </div>
+      </div>
+      <div class="alerta" id="alert">
+        <p>Se ha detectado movimiento</p>
+      </div>
+    </div>
+  </div>
 
-<div class="contenedor">
-  <div class="boton">
-    <input type="text" id="sensorA" disabled="true">
-  </div>
-  <div class="boton">
-    <input type="text" id="sensorB" disabled="true">
-  </div>
-  <div class="boton">
-    <input type="text" id="sensorC" disabled="true">
-  </div>
-</div>
-<h1>Servicio:</h1>
-<h1 id="estado"></h1>
-<div>
-  <button onclick='send("1")'>Encendido</button>
-  <button onclick='send("2")'>Apagado</button>
-</div>
 
-<canvas id="showImage" width="640" height="480"></canvas>
-<img src="#" id="twinImg" />
 </body>
 </html>
