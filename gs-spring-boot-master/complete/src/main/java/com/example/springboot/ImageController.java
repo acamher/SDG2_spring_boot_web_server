@@ -24,7 +24,7 @@ public class ImageController {
 
     @GetMapping("getImage")
     public ResponseEntity<byte[]> getImage() throws IOException {
-        File img = new File("src/main/resources/static/descarga.jpg");
+        File img = new File("/home/pi/Desktop/image.jpg");
         byte[] media = Files.readAllBytes(img.toPath());
 
         HttpHeaders headers = new HttpHeaders();

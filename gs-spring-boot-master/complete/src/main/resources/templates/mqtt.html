@@ -41,9 +41,9 @@
 <script>
   function rellamar(){
     setInterval(function(){
-      loadDocA();
+      getSensoresYEstado();
       updateImage();
-    }, 2000);
+    }, 1000);
   }
 
   function updateImage(){
@@ -75,27 +75,7 @@
     xhr.send();
   }
 
-  /*function updateImage() {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState === 4 && this.status === 200) {
-        estado = this.responseText;
-        document.getElementById("estado").innerHTML = estado;
-        if (estado === "alr" || estado === "on"){
-          send(1);
-          document.getElementById('img').style.display = 'block';
-          var node = document.getElementById('img');
-          refresh(node);
-        }else{
-          send(2);
-          document.getElementById('img').style.display = 'none';
-        }
-      }};
-    xhttp.open("GET", "estado", true);
-    xhttp.send();
-  }*/
-
-  function loadDocA() {
+  function getSensoresYEstado() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
       if (this.readyState === 4 && this.status === 200) {
@@ -103,6 +83,7 @@
         document.getElementById("sensorA").value = arrrayDeNumeros[0];
         document.getElementById("sensorB").value = arrrayDeNumeros[1];
         document.getElementById("sensorC").value = arrrayDeNumeros[2];
+        document.getElementById("estado").innerHTML = arrrayDeNumeros[3];
       }};
     xhttp.open("GET", "mqtt?dato=A", true);
     xhttp.send();
@@ -110,11 +91,6 @@
 
   // Si el parámetro estado vale 1 (ascii = 49), se activa el arduino. Si se envía 2 (ascii = 50), se desactivan los sensores.
   function send(estado) {
-    if (estado === 1) {
-      document.getElementById('img').style.display = 'block';
-    } else {
-      document.getElementById('img').style.display = 'none';
-    }
     var xhttp = new XMLHttpRequest();
     xhttp.open("GET","send?estado=" + estado ,true);
     xhttp.send();
@@ -142,7 +118,7 @@
   <button onclick='send("2")'>Apagado</button>
 </div>
 
-<canvas id="showImage" width="200" height="200"></canvas>
+<canvas id="showImage" width="640" height="480"></canvas>
 <img src="#" id="twinImg" />
 </body>
 </html>

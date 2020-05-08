@@ -35,6 +35,25 @@ public class HelloRestController{
             out.writeUTF(dato);
             sc.close();
         }catch (Exception e){
+            System.out.println(e + "Probablemente sea que Arduino esté apagado");
+        }
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/sensor?serverTimezone=Europe/Berlin" ,"spring","web_ddbb");
+
+            String query = null;
+            if (dato.equals("1")) {
+                query = "UPDATE stado SET estado='on' WHERE id=1";
+            }else{
+                query = "UPDATE stado SET estado='off' WHERE id=1";
+            }
+
+            PreparedStatement preparedStmt = con.prepareStatement(query);
+            preparedStmt.executeUpdate();
+            con.close();
+
+        } catch (Exception e) {
             System.out.println(e);
         }
 
@@ -62,17 +81,6 @@ public class HelloRestController{
         }
     }
 
-    /*@RequestMapping("/getImage")
-    public Image getImage(){
-        try{
-            Image foto = new ImageIcon("~/Arduino/foto.jpg").getImage();
-            return foto;
-        } catch (Exception e) {
-            System.out.println(e);
-            return null;
-        }
-    }*/
-
 
     private String read_ip(){
         try {
@@ -94,6 +102,7 @@ public class HelloRestController{
         }
     }
 
+    // Devuelve los valores del sensor y el estado del sistema.
     private String leer() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -113,21 +122,10 @@ public class HelloRestController{
             rs = stmt.executeQuery("SELECT distancia FROM data WHERE id=3");
             if(rs.next())
                 resultado = resultado + ";" + rs.getInt(1);
-
-            /*switch (path){
-                case "A":
-                    rs = stmt.executeQuery("SELECT distancia FROM data WHERE id=1");
-                case "B":
-                    rs = stmt.executeQuery("SELECT distancia FROM data WHERE id=2");
-                case "C":
-                    rs = stmt.executeQuery("SELECT distancia FROM data WHERE id=3");
-            }
-
-            if(rs.next()){
-                return "" + rs.getInt(1);
-            }else{
-                return "";
-            }*/
+            rs = null;
+            rs = stmt.executeQuery("SELECT estado FROM stado WHERE id=1");
+            if(rs.next())
+                resultado = resultado + ";" + rs.getString("estado");
 
             return resultado;
 

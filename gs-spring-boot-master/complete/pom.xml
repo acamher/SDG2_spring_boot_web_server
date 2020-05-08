@@ -97,7 +97,8 @@
 				<fromFile>target/${project.artifactId}-${project.version}.jar</fromFile>
 				<id>ftp-repository</id>
 				<url>
-					scp://192.168.1.80/home/pi/Arduino/SDG2_spring_boot_web_server/gs-spring-boot-master/complete/target
+					scp://192.168.1.80/home/pi/Arduino/
+					<!--SDG2_spring_boot_web_server/gs-spring-boot-master/complete/target-->
 				</url>
 				<toFile>${project.artifactId}.jar</toFile>
 				<StrictHostKeyChecking>no</StrictHostKeyChecking>
