@@ -29,14 +29,14 @@ public class HelloRestController{
         final String ip = read_ip();
         final int puerto = 23;
 
-        try{
+        /*try{
             Socket sc = new Socket(ip,puerto);
             DataOutputStream out = new DataOutputStream(sc.getOutputStream());
             out.writeUTF(dato);
             sc.close();
         }catch (Exception e){
             System.out.println(e + "Probablemente sea que Arduino esté apagado");
-        }
+        }*/
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -45,14 +45,16 @@ public class HelloRestController{
             String query = null;
             if (dato.equals("1")) {
                 query = "UPDATE stado SET estado='on' WHERE id=1";
-            }else{
+            }else if (dato.equals("2")){
                 query = "UPDATE stado SET estado='off' WHERE id=1";
+            }else{
+                query = "UPDATE stado SET estado='man' WHERE id=1";
             }
 
             PreparedStatement preparedStmt = con.prepareStatement(query);
             preparedStmt.executeUpdate();
             con.close();
-
+            System.out.println("Se ha cambiado el sistema");
         } catch (Exception e) {
             System.out.println(e);
         }
