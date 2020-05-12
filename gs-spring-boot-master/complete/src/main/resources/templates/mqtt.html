@@ -108,6 +108,15 @@
       color: black;
     }
 
+    #showImageAlerta{
+      margin: 15px;
+      margin-top: 0px;
+    }
+
+    #twinImgAlerta{
+      display: none;
+    }
+
     #showImage{
       margin: 15px;
       margin-top: 0px;
@@ -126,18 +135,19 @@
 
   var estadoAnterior = null;
   var contador = 0;
+  //var eventImg = new EventSource("/img/getImageFeed");
+  var eventTxt = new EventSource("/txtFeed");
 
   function rellamar(){
     setInterval(function(){
       getSensoresYEstado();
-      updateImage()
     }, 1000);
   }
 
-  function updateImage(){
+  function updateImage(id_canvas, id_twin, url){
     var xhr = new XMLHttpRequest();
 
-    xhr.open('GET',"/img/getImage", true);
+    xhr.open('GET',url, true);
 
     xhr.onload = function(){
       var img = new Image();
@@ -154,14 +164,19 @@
 
       context.drawImage(img,0,0);
       var snapshot = canvas.toDataURL("image/png");
-      var twinImage = document.getElementById('twinImg');
+      var twinImage = document.getElementById(id_twin);
       twinImage.src = snapshot;
-
     };
 
     xhr.overrideMimeType('text/plain; charset=x-user-defined');
     xhr.send();
   }
+
+
+  eventTxt.onmessage = function(e){
+    updateImage("showImage","twinImg","/img/getImage");
+    getSensoresYEstado();
+  };
 
   function getSensoresYEstado() {
     var xhttp = new XMLHttpRequest();
@@ -174,13 +189,12 @@
         document.getElementById("estado").innerHTML = arrrayDeNumeros[3];
 
         if (arrrayDeNumeros[3] === "alr"){
-
           //Compruebo si ha habido cambio de estado.
           if (arrrayDeNumeros[3] !== estadoAnterior){
-            setTimeout(() => {  updateImage(); }, 1000);    //Espera 50 milisegundos para que de tiempo a capturar la foto.
-            contador = 0;
+            updateImage("showImageAlerta","twinImgAlerta","/img/getImageAlert");
           }
-
+          //Imagen provocadora de la alerta visible
+          document.getElementById("divAlerta").style.display = "block";
           //comprobarContador(arrrayDeNumeros[3], 4);   //A 500 milisegundos el contador hace 2 seg cuando llega a 4.
           //Color sensores
           if (arrrayDeNumeros[0] < arrrayDeNumeros[1] - 20){
@@ -198,6 +212,8 @@
           document.getElementById("alert").style.display = "block";
           document.getElementById("sliders").style.display = "none";
         }else if (arrrayDeNumeros[3] === "on"){
+          //Imagen provocadora de la alerta invisible
+          document.getElementById("divAlerta").style.display = "none";
           //comprobarContador(arrrayDeNumeros[3], 10);   //A 500 milisegundos el contador hace 5 seg cuando llega a 10.
           //Color sensores
           document.getElementById("sensorA").style.color = "black";
@@ -210,6 +226,8 @@
           document.getElementById("alert").style.display = "none";
           document.getElementById("sliders").style.display = "none";
         }else if (arrrayDeNumeros[3] === "off"){
+          //Imagen provocadora de la alerta invisible
+          document.getElementById("divAlerta").style.display = "none";
           //comprobarContador(arrrayDeNumeros[3], 10);   //A 500 milisegundos el contador hace 5 seg cuando llega a 10.
           //Color sensores
           document.getElementById("sensorA").style.color = "black";
@@ -222,13 +240,10 @@
           document.getElementById("alert").style.display = "none";
           document.getElementById("sliders").style.display = "none";
         }else{    //Estado manual
+          //Imagen provocadora de la alerta invisible
+          document.getElementById("divAlerta").style.display = "none";
 
           //Compruebo si ha habido cambio de estado.
-          if (arrrayDeNumeros[3] !== estadoAnterior){
-            setTimeout(() => {  updateImage(); }, 1000);    //Espera 50 milisegundos para que de tiempo a capturar la foto.
-            contador = 0;
-          }
-
           //comprobarContador(arrrayDeNumeros[3], 4);   //A 500 milisegundos el contador hace 2 seg cuando llega a 4.
           //Color sensores
           document.getElementById("sensorA").style.color = "black";
@@ -247,7 +262,8 @@
     xhttp.send();
   }
 
-  function comprobarContador(estadoActual, maximoContador){
+  //Calcula si ha cambiado el estado recientemente
+  /*function comprobarContador(estadoActual, maximoContador){
     //Compruebo si ha habido cambio de estado.
     if (estadoActual !== estadoAnterior){
       setTimeout(() => {  updateImage(); }, 1000);    //Espera 50 milisegundos para que de tiempo a capturar la foto.
@@ -259,7 +275,7 @@
         updateImage();
       }
     }
-  }
+  }*/
 
   // Si el parámetro estado vale 1 (ascii = 49), se activa el arduino. Si se envía 2 (ascii = 50), se desactivan los sensores.
   function send(estado) {
@@ -298,6 +314,7 @@
           <button onclick='send("1")' style="background-color: green" id="botonON">ON</button>
           <button onclick='send("2")' style="background-color: darkred" id="botonOFF">OFF</button>
           <button onclick='send("3")' style="background-color: darkgoldenrod" id="botonMAN">Manual</button>
+          <div id="text"><p id="parrafo"></p></div>
         </div>
         <div class="slidecontainer" id="sliders" style="display: none">
           <p>Horizontal:</p>
@@ -310,6 +327,11 @@
         <p>Se ha detectado movimiento</p>
       </div>
     </div>
+  </div>
+  <div id= "divAlerta" style="display: none">
+    <h1>Alerta generada por:</h1>
+    <canvas id="showImageAlerta" width="640" height="480"></canvas>
+    <img src="#" id="twinImgAlerta"/>
   </div>
 
 

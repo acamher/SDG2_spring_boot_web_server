@@ -6,13 +6,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import java.io.*;
 import java.net.Socket;
-import java.io.DataOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
 
-import java.io.FileNotFoundException;  // Import this class to handle errors
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @RestController
 public class HelloRestController{
@@ -81,6 +85,76 @@ public class HelloRestController{
             System.out.println(e);
             return "" ;
         }
+    }
+
+/*    @RequestMapping("/txtFeed")
+    public StreamingResponseBody txtFeed () {
+
+        return new StreamingResponseBody() {
+            @Override
+            public void writeTo (OutputStream out) throws IOException {
+                for (int i = 0; i < 10; i++) {
+                    out.write((Integer.toString(i) + "-Prueba")
+                            .getBytes());
+                    out.flush();
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+    }*/
+    @RequestMapping("/txtFeed")
+    public SseEmitter txtFeed () {
+        SseEmitter emitter = new SseEmitter();
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() ->
+        {
+            try {
+                System.out.println("Arrancamos Emitter");
+                File file = new File("/home/pi/Desktop/image.jpg");
+
+                long timeStamp = 0; //file.lastModified();
+                emitter.send("changedImage");
+                while(true) {
+                    if (file.lastModified() != timeStamp) {
+                        System.out.println("Ha cambiado la imagen");
+                        timeStamp = file.lastModified();
+                        emitter.send("changedImage");
+                    }
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                //emitter.complete();
+
+            } catch (IOException e) {
+                emitter.completeWithError(e);
+            }
+        });
+        executor.shutdown();
+        return emitter;
+    }
+
+    private void randomDelay() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private long ischangedArchiveDate(String filepath, long date){
+        File file = new File(filepath);
+        if (file.lastModified() != date)
+            return 0;
+        else
+            return file.lastModified();
     }
 
 
