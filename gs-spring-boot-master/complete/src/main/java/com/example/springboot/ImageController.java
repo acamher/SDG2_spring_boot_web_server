@@ -34,15 +34,15 @@ public class ImageController {
         System.out.println("Nombre: "+name);
         try {
             File img = new File("/home/pi/Desktop/" + name);
-            while ( !img.canWrite()) {
+            /*while ( !img.canWrite()) {
                 Thread.sleep(100);
                 System.out.println("Esperando desbloqueo: "+name);
-            }
+            }*/
             byte[] media = Files.readAllBytes(img.toPath());
             if (!filenameLastPicture.equals("")) {
                 File imgdel = new File("/home/pi/Desktop/" + filenameLastPicture);
                 System.out.println("Borrando: " + filenameLastPicture);
-                //imgdel.delete();
+                imgdel.delete();
             }
             filenameLastPicture=name;
             HttpHeaders headers = new HttpHeaders();

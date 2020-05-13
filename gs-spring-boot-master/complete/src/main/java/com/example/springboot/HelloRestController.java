@@ -136,7 +136,7 @@ public class HelloRestController{
                     }
 
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

@@ -201,19 +201,18 @@
 
 
   eventTxt.onmessage = function(e){
-    /*var entrar = false;
+    var entrar = false;
     if (imagenname===e.data && reintentos<3) {
       entrar = true;
       reintentos =reintentos + 1;
     }
-    if (imagenname!==e.data || entrar) {*/
+    if (imagenname!==e.data || entrar) {
       console.log(e.data);
       console.log("Recibido nueva imagen changed");
       updateImage("showImage","/img/getImage?name="+e.data);
-      imagenname=e.data;
       if (imagenname!==e.data) reintentos=0;
-    //}
-
+      imagenname=e.data;
+    }
   };
 
   function getSensoresYEstado() {
