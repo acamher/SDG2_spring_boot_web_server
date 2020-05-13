@@ -58,7 +58,7 @@ public class HelloRestController{
             PreparedStatement preparedStmt = con.prepareStatement(query);
             preparedStmt.executeUpdate();
             con.close();
-            System.out.println("Se ha cambiado el sistema");
+            System.out.println("Se ha cambiado el estado");
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -87,25 +87,6 @@ public class HelloRestController{
         }
     }
 
-/*    @RequestMapping("/txtFeed")
-    public StreamingResponseBody txtFeed () {
-
-        return new StreamingResponseBody() {
-            @Override
-            public void writeTo (OutputStream out) throws IOException {
-                for (int i = 0; i < 10; i++) {
-                    out.write((Integer.toString(i) + "-Prueba")
-                            .getBytes());
-                    out.flush();
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        };
-    }*/
     @RequestMapping("/txtFeed")
     public SseEmitter txtFeed () {
         SseEmitter emitter = new SseEmitter();
@@ -116,11 +97,10 @@ public class HelloRestController{
             try {
                 System.out.println("Arrancamos Emitter");
                 File file = new File("/home/pi/Desktop/image.jpg");
-
                 long timeStamp = 0; //file.lastModified();
                 emitter.send("changedImage");
                 while(true) {
-                    if (file.lastModified() != timeStamp) {
+                    if (file.lastModified() != timeStamp  ) {
                         System.out.println("Ha cambiado la imagen");
                         timeStamp = file.lastModified();
                         emitter.send("changedImage");

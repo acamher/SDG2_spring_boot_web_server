@@ -135,7 +135,7 @@
 
   var estadoAnterior = null;
   var contador = 0;
-  //var eventImg = new EventSource("/img/getImageFeed");
+
   var eventTxt = new EventSource("/txtFeed");
 
   function rellamar(){
@@ -144,7 +144,7 @@
     }, 1000);
   }
 
-  function updateImage(id_canvas, id_twin, url){
+  function updateImage(id_canvas,url){
     var xhr = new XMLHttpRequest();
 
     xhr.open('GET',url, true);
@@ -159,13 +159,38 @@
       }
 
       img.src = 'data:image/jpeg;base64,' + btoa(binary);
-      var canvas = document.getElementById('showImage');
+      var canvas = document.getElementById(id_canvas);
       var context = canvas.getContext('2d');
 
       context.drawImage(img,0,0);
-      var snapshot = canvas.toDataURL("image/png");
-      var twinImage = document.getElementById(id_twin);
-      twinImage.src = snapshot;
+    };
+
+    xhr.overrideMimeType('text/plain; charset=x-user-defined');
+    xhr.send();
+  }
+
+  function updateImage(){
+    var xhr = new XMLHttpRequest();
+
+    xhr.open('GET',"/img/getImage", true);
+
+    xhr.onload = function(){
+      console.log("OnLoad image1");
+      var img = new Image();
+      var response = xhr.responseText;
+      var binary = "";
+
+      for(i=0;i<response.length;i++){
+        binary += String.fromCharCode(response.charCodeAt(i) & 0xff);
+      }
+
+      console.log("OnLoad image2");
+      img.src = 'data:image/jpeg;base64,' + btoa(binary);
+      console.log("OnLoad image3");
+      var canvas = document.getElementById("showImage");
+      var context = canvas.getContext('2d');
+      context.drawImage(img,0,0);
+      console.log("OnLoad image4");
     };
 
     xhr.overrideMimeType('text/plain; charset=x-user-defined');
@@ -174,7 +199,9 @@
 
 
   eventTxt.onmessage = function(e){
-    updateImage("showImage","twinImg","/img/getImage");
+    console.log("Recibido imagen changed");
+    //updateImage("showImage","/img/getImage");
+    updateImage();
     getSensoresYEstado();
   };
 
@@ -191,7 +218,7 @@
         if (arrrayDeNumeros[3] === "alr"){
           //Compruebo si ha habido cambio de estado.
           if (arrrayDeNumeros[3] !== estadoAnterior){
-            updateImage("showImageAlerta","twinImgAlerta","/img/getImageAlert");
+            updateImage("showImageAlerta","/img/getImageAlert");
           }
           //Imagen provocadora de la alerta visible
           document.getElementById("divAlerta").style.display = "block";
