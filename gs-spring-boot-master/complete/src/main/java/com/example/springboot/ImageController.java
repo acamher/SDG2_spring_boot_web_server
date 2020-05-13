@@ -1,8 +1,7 @@
 package com.example.springboot;
 
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -38,7 +37,8 @@ public class ImageController {
                 Thread.sleep(100);
                 System.out.println("Esperando desbloqueo: "+name);
             }*/
-            byte[] media = Files.readAllBytes(img.toPath());
+            //byte[] media = Files.readAllBytes(img.toPath());
+            byte[] media = read(img);
             if (!filenameLastPicture.equals("")) {
                 File imgdel = new File("/home/pi/Desktop/" + filenameLastPicture);
                 System.out.println("Borrando: " + filenameLastPicture);
@@ -51,8 +51,37 @@ public class ImageController {
 
             return responseEntity;
         } catch (Exception e) {
+            System.out.println("Excep " + e.getMessage());
             return null;
         }
+    }
+
+    public byte[] read(File file) throws IOException {
+
+        ByteArrayOutputStream ous = null;
+        InputStream ios = null;
+        try {
+            byte[] buffer = new byte[4096];
+            ous = new ByteArrayOutputStream();
+            ios = new FileInputStream(file);
+            int read = 0;
+            while ((read = ios.read(buffer)) != -1) {
+                ous.write(buffer, 0, read);
+            }
+        }finally {
+            try {
+                if (ous != null)
+                    ous.close();
+            } catch (IOException e) {
+            }
+
+            try {
+                if (ios != null)
+                    ios.close();
+            } catch (IOException e) {
+            }
+        }
+        return ous.toByteArray();
     }
 
     //@GetMapping("getImageLocked")
