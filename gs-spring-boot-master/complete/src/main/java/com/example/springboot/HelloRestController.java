@@ -1,5 +1,6 @@
 package com.example.springboot;
 
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -87,6 +90,7 @@ public class HelloRestController{
         }
     }
 
+    //Otro
     @RequestMapping("/txtFeed")
     public SseEmitter txtFeed () {
         SseEmitter emitter = new SseEmitter();
@@ -96,30 +100,96 @@ public class HelloRestController{
         {
             try {
                 System.out.println("Arrancamos Emitter");
-                File file = new File("/home/pi/Desktop/image.jpg");
+                File directory = new File("/home/pi/Desktop/");
                 long timeStamp = 0; //file.lastModified();
-                emitter.send("changedImage");
+                //emitter.send("changedImage");
                 while(true) {
-                    if (file.lastModified() != timeStamp  ) {
-                        System.out.println("Ha cambiado la imagen");
-                        timeStamp = file.lastModified();
-                        emitter.send("changedImage");
+                    File[] files = directory.listFiles();
+                    Arrays.sort(files, new Comparator<File>(){
+                        public int compare(File f1, File f2)
+                        {
+                            return Long.valueOf(f2.lastModified()).compareTo(f1.lastModified());
+                        } });
+                    //File file = new File("/home/pi/Desktop/image.jpg");
+                    if(files.length>0) {
+                        if (true){//files[0].lastModified() != timeStamp  ) {
+                            //Comprobar si todavía está pillado por la cámara
+                            File test = new File("/home/pi/Desktop/"+files[0].getName());
+                            /*try {
+                                Thread.sleep(4000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }*/
+                            File sameFileName = new File("/home/pi/Desktop/"+files[0].getName());
+                            if (test.renameTo(sameFileName)) {
+                                //Ya no lo está
+                                //if (files[0].canWrite()) {
+                                System.out.println("Nueva imagen: ha cambiado la imagen");
+                                timeStamp = files[0].lastModified();
+                                emitter.send(files[0].getName());
+                            } else {
+                                System.out.println("Nueva imagen: pero NO rename");
+                            }
+                        }else{
+                            //emitter.send("no");
+                        }
                     }
+
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(200);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
                 //emitter.complete();
 
-            } catch (IOException e) {
+            } catch (IOException  e) {
                 emitter.completeWithError(e);
             }
         });
         executor.shutdown();
         return emitter;
     }
+
+    //Prueba Alvaro
+   /* @RequestMapping("/txtFeed")
+    public SseEmitter txtFeed () {
+        SseEmitter emitter = new SseEmitter();
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() ->
+        {
+            try {
+                System.out.println("Arrancamos Emitter");
+                File foto = new File("/home/pi/Desktop/image.jpg");
+                long timeStamp = 0; //file.lastModified();
+
+                while(true) {
+                    if(foto.lastModified() != timeStamp){
+                        if (foto.canWrite()){
+                            System.out.println("Se puede leer la imagen y tienen fechas distintas. Nuevo = " + foto.lastModified() + ". Antiguo: " + timeStamp);
+                            timeStamp = foto.lastModified();
+                            emitter.send("image.jpg");
+                        } else {
+                            System.out.println("Imagen ocupada, espero.");
+                        }
+                    }
+
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                //emitter.complete();
+
+            } catch (IOException  e) {
+                emitter.completeWithError(e);
+            }
+        });
+        executor.shutdown();
+        return emitter;
+    }*/
 
     private void randomDelay() {
         try {

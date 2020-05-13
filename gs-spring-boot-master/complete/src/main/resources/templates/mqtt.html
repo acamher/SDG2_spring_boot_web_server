@@ -3,6 +3,9 @@
 <head>
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <style media="screen">
     body{
       font-family: 'Roboto', sans-serif;
@@ -114,7 +117,7 @@
     }
 
     #twinImgAlerta{
-      display: none;
+      display: block;
     }
 
     #showImage{
@@ -123,7 +126,7 @@
     }
 
     #twinImg{
-      display: none;
+      display: block;
     }
 
   </style>
@@ -135,18 +138,21 @@
 
   var estadoAnterior = null;
   var contador = 0;
+  var imagenname="";
+  var reintentos=0;
 
   var eventTxt = new EventSource("/txtFeed");
 
   function rellamar(){
     setInterval(function(){
       getSensoresYEstado();
+      //updateImage("showImage","/img/getImage?name=descarga54.jpg");
     }, 1000);
   }
 
   function updateImage(id_canvas,url){
     var xhr = new XMLHttpRequest();
-
+    var aleatorio = Math.round(Math.random()*1000);
     xhr.open('GET',url, true);
 
     xhr.onload = function(){
@@ -169,13 +175,12 @@
     xhr.send();
   }
 
-  function updateImage(){
+  /*function updateImage(){
     var xhr = new XMLHttpRequest();
-
-    xhr.open('GET',"/img/getImage", true);
+    var aleatorio = Math.round(Math.random()*1000);
+    xhr.open('GET',"/img/getImage?aleatorio=" + aleatorio, true);
 
     xhr.onload = function(){
-      console.log("OnLoad image1");
       var img = new Image();
       var response = xhr.responseText;
       var binary = "";
@@ -184,25 +189,31 @@
         binary += String.fromCharCode(response.charCodeAt(i) & 0xff);
       }
 
-      console.log("OnLoad image2");
       img.src = 'data:image/jpeg;base64,' + btoa(binary);
-      console.log("OnLoad image3");
       var canvas = document.getElementById("showImage");
       var context = canvas.getContext('2d');
       context.drawImage(img,0,0);
-      console.log("OnLoad image4");
     };
 
     xhr.overrideMimeType('text/plain; charset=x-user-defined');
     xhr.send();
-  }
+  }*/
 
 
   eventTxt.onmessage = function(e){
-    console.log("Recibido imagen changed");
-    //updateImage("showImage","/img/getImage");
-    updateImage();
-    getSensoresYEstado();
+    /*var entrar = false;
+    if (imagenname===e.data && reintentos<3) {
+      entrar = true;
+      reintentos =reintentos + 1;
+    }
+    if (imagenname!==e.data || entrar) {*/
+      console.log(e.data);
+      console.log("Recibido nueva imagen changed");
+      updateImage("showImage","/img/getImage?name="+e.data);
+      imagenname=e.data;
+      if (imagenname!==e.data) reintentos=0;
+    //}
+
   };
 
   function getSensoresYEstado() {
@@ -218,7 +229,7 @@
         if (arrrayDeNumeros[3] === "alr"){
           //Compruebo si ha habido cambio de estado.
           if (arrrayDeNumeros[3] !== estadoAnterior){
-            updateImage("showImageAlerta","/img/getImageAlert");
+            //updateImage("showImageAlerta","/img/getImageAlert");
           }
           //Imagen provocadora de la alerta visible
           document.getElementById("divAlerta").style.display = "block";
