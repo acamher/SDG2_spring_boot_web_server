@@ -129,6 +129,11 @@
       display: block;
     }
 
+    #flecha{
+      width: 100px;
+      transform: rotate(0deg);
+    }
+
   </style>
 
 </head>
@@ -137,8 +142,6 @@
   $(document).ready(rellamar());
 
   var estadoAnterior = null;
-  var contador = 0;
-  var imagenname="";
   var reintentos=0;
 
   var eventTxt = new EventSource("/txtFeed");
@@ -146,7 +149,6 @@
   function rellamar(){
     setInterval(function(){
       getSensoresYEstado();
-      //updateImage("showImage","/img/getImage?name=descarga54.jpg");
     }, 1000);
   }
 
@@ -175,44 +177,14 @@
     xhr.send();
   }
 
-  /*function updateImage(){
-    var xhr = new XMLHttpRequest();
-    var aleatorio = Math.round(Math.random()*1000);
-    xhr.open('GET',"/img/getImage?aleatorio=" + aleatorio, true);
-
-    xhr.onload = function(){
-      var img = new Image();
-      var response = xhr.responseText;
-      var binary = "";
-
-      for(i=0;i<response.length;i++){
-        binary += String.fromCharCode(response.charCodeAt(i) & 0xff);
-      }
-
-      img.src = 'data:image/jpeg;base64,' + btoa(binary);
-      var canvas = document.getElementById("showImage");
-      var context = canvas.getContext('2d');
-      context.drawImage(img,0,0);
-    };
-
-    xhr.overrideMimeType('text/plain; charset=x-user-defined');
-    xhr.send();
-  }*/
-
-
-  eventTxt.onmessage = function(e){
-   /* var entrar = false;
-    if (imagenname===e.data && reintentos<3) {
-      entrar = true;
-      reintentos =reintentos + 1;
-    }
-    if (imagenname!==e.data || entrar) {*/
-      console.log(e.data);
-      console.log("Recibido nueva imagen changed");
+   eventTxt.onmessage = function(e){
+    reintentos=0;
+    while (reintentos<2) {
+      reintentos = reintentos +1;
+      //console.log(e.data);
+      //console.log("Recibido nueva imagen changed " + reintentos);
       updateImage("showImage","/img/getImage?name="+e.data);
-    /*  if (imagenname!==e.data) reintentos=0;
-      imagenname=e.data;
-    }*/
+    }
   };
 
   function getSensoresYEstado() {
@@ -230,16 +202,19 @@
           if (arrrayDeNumeros[3] !== estadoAnterior){
             //updateImage("showImageAlerta","/img/getImageAlert");
           }
+
           //Imagen provocadora de la alerta visible
           document.getElementById("divAlerta").style.display = "block";
           //comprobarContador(arrrayDeNumeros[3], 4);   //A 500 milisegundos el contador hace 2 seg cuando llega a 4.
           //Color sensores
-          if (arrrayDeNumeros[0] < arrrayDeNumeros[1] - 20){
+          if (arrrayDeNumeros[0] < arrrayDeNumeros[1]){
             document.getElementById("sensorA").style.color = "red";
             document.getElementById("sensorA").style.color = "black";
+            document.getElementById("flecha").innerHTML = "PUERTA";
           }else{
             document.getElementById("sensorA").style.color = "black";
             document.getElementById("sensorA").style.color = "red";
+            document.getElementById("flecha").innerHTML = "CUARTO";
           }
           //Botones a mostrar
           document.getElementById("botonON").style.display = "block";
@@ -299,21 +274,6 @@
     xhttp.send();
   }
 
-  //Calcula si ha cambiado el estado recientemente
-  /*function comprobarContador(estadoActual, maximoContador){
-    //Compruebo si ha habido cambio de estado.
-    if (estadoActual !== estadoAnterior){
-      setTimeout(() => {  updateImage(); }, 1000);    //Espera 50 milisegundos para que de tiempo a capturar la foto.
-      contador = 0;
-    }else{
-      contador++;
-      if (contador === maximoContador){
-        contador = 0;
-        updateImage();
-      }
-    }
-  }*/
-
   // Si el parámetro estado vale 1 (ascii = 49), se activa el arduino. Si se envía 2 (ascii = 50), se desactivan los sensores.
   function send(estado) {
     var xhttp = new XMLHttpRequest();
@@ -351,7 +311,6 @@
           <button onclick='send("1")' style="background-color: green" id="botonON">ON</button>
           <button onclick='send("2")' style="background-color: darkred" id="botonOFF">OFF</button>
           <button onclick='send("3")' style="background-color: darkgoldenrod" id="botonMAN">Manual</button>
-          <div id="text"><p id="parrafo"></p></div>
         </div>
         <div class="slidecontainer" id="sliders" style="display: none">
           <p>Horizontal:</p>
@@ -362,6 +321,7 @@
       </div>
       <div class="alerta" id="alert">
         <p>Se ha detectado movimiento</p>
+        <p id="flecha"></p>
       </div>
     </div>
   </div>

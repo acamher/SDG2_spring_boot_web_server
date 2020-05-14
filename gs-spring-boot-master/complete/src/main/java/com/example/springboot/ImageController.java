@@ -30,21 +30,9 @@ public class ImageController {
     //@GetMapping("getImage")
     @GetMapping("getImage")
     public ResponseEntity<byte[]> getImage(@RequestParam(name="name", required=false, defaultValue="") String name) throws IOException {
-        System.out.println("Nombre: "+name);
         try {
             File img = new File("/home/pi/Desktop/" + name);
-            /*while ( !img.canWrite()) {
-                Thread.sleep(100);
-                System.out.println("Esperando desbloqueo: "+name);
-            }*/
-            //byte[] media = Files.readAllBytes(img.toPath());
             byte[] media = read(img);
-            if (!filenameLastPicture.equals("")) {
-                File imgdel = new File("/home/pi/Desktop/" + filenameLastPicture);
-                System.out.println("Borrando: " + filenameLastPicture);
-                imgdel.delete();
-            }
-            filenameLastPicture=name;
             HttpHeaders headers = new HttpHeaders();
             headers.setCacheControl(CacheControl.noCache().getHeaderValue());
             ResponseEntity<byte[]> responseEntity = new ResponseEntity<>(media, headers, OK);
@@ -82,29 +70,6 @@ public class ImageController {
             }
         }
         return ous.toByteArray();
-    }
-
-    //@GetMapping("getImageLocked")
-    @GetMapping("getImageOther")
-    public ResponseEntity<byte[]> getImageLocked(@RequestParam(name="name", required=false, defaultValue="") String name) throws IOException {
-        System.out.println("Nombre: "+name);
-        try {
-            File img = new File("/home/pi/Desktop/" + name);
-            while ( !img.canWrite()) {
-                Thread.sleep(100);
-                System.out.println("Esperando desbloqueo: "+name);
-            }
-            byte[] media = leerArchivoDesbloqueado(img);
-
-            filenameLastPicture=name;
-            HttpHeaders headers = new HttpHeaders();
-            headers.setCacheControl(CacheControl.noCache().getHeaderValue());
-            ResponseEntity<byte[]> responseEntity = new ResponseEntity<>(media, headers, OK);
-
-            return responseEntity;
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     private byte[] leerArchivoDesbloqueado(File img) throws IOException {
